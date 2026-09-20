@@ -1,0 +1,1 @@
+g++ -std=c++17 -o maze.exe maze.cpp && maze.exe
