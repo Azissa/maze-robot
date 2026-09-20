@@ -49,6 +49,14 @@ const int dRow[4] = {-1, 1, 0, 0};
 const int dCol[4] = {0, 0, -1, 1};
 const string dirName[4] = {"UP", "DOWN", "LEFT", "RIGHT"};
 
+void printPath(int path[], int length) {
+    for (int i = 0; i < length; i++) {
+        cout << dirName[path[i]];
+        if (i < length - 1) cout << ", ";
+    }
+    cout << endl;
+}
+
 int findPath(int fromRow, int fromCol, int toRow, int toCol, int path[]) {
     bool visited[ROWS][COLS] = {};
     int prevRow[ROWS][COLS];
@@ -80,8 +88,8 @@ int findPath(int fromRow, int fromCol, int toRow, int toCol, int path[]) {
             prevDir[nr][nc] = d;
             rowQueue.push(nr);
             colQueue.push(nc);
-        }
     }
+}
 
     if (!visited[toRow][toCol]) return -1;
 
@@ -111,8 +119,25 @@ int findPath(int fromRow, int fromCol, int toRow, int toCol, int path[]) {
 int main() {
     printMaze();
     findPositions();
-    cout << "Start: (" << startRow << "," << startCol << ")" << endl;
-    cout << "Flag:  (" << flagRow << "," << flagCol << ")" << endl;
-    cout << "Goal:  (" << goalRow << "," << goalCol << ")" << endl;
+    int pathToFlag[ROWS * COLS];
+    int pathToBase[ROWS * COLS];
+    int lengthToFlag = findPath(startRow, startCol, flagRow, flagCol, pathToFlag);
+    int lengthToBase = findPath(flagRow, flagCol, goalRow, goalCol, pathToBase);
+
+    if (lengthToFlag < 0 || lengthToBase < 0) {
+        cout << "MISSION FAILED" << endl;
+        return 0;
+    }
+
+    cout << "MAP LOADED     : " << ROWS << " x " << COLS << endl;
+    cout << "START POSITION : (" << startRow << "," << startCol << ")" << endl;
+    cout << "PATH TO FLAG   : ";
+    printPath(pathToFlag, lengthToFlag);
+    cout << "FLAG CAPTURED  : (" << flagRow << "," << flagCol << ")" << endl;
+    cout << "PATH TO BASE   : ";
+    printPath(pathToBase, lengthToBase);
+    cout << "BASE REACHED   : (" << goalRow << "," << goalCol << ")" << endl;
+    cout << "MISSION COMPLETE" << endl;
+    cout << "TOTAL MOVES    : " << lengthToFlag + lengthToBase << endl;
     return 0;
 }
