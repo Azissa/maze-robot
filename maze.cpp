@@ -3,29 +3,68 @@
 #include <string>
 using namespace std;
 
-const int ROWS = 7;
-const int COLS = 7;
+const int MAX_SIZE = 11;
 
-char maze[ROWS][COLS] = {
-    {'#', '#', '#', '#', '#', '#', '#'},
-    {'#', 'S', '#', '.', '.', '.', '#'},
-    {'#', '.', '#', '.', '#', 'G', '#'},
-    {'#', '.', '.', '.', '#', '.', '#'},
-    {'#', '#', '#', '.', '.', '.', '#'},
-    {'#', 'X', '.', '.', 'F', '.', '#'},
-    {'#', '#', '#', '#', '#', '#', '#'}
+int rows, cols;
+char maze[MAX_SIZE][MAX_SIZE];
+
+string map1[7] = {
+    "#######",
+    "#S#...#",
+    "#.#.#G#",
+    "#...#.#",
+    "###...#",
+    "#X..F.#",
+    "#######"
+};
+
+string map2[9] = {
+    "#########",
+    "#S..#...#",
+    "#.#.#.#G#",
+    "#.#...#.#",
+    "#...#...#",
+    "###.#..##",
+    "#X..#..F#",
+    "#.###X..#",
+    "#########"
+};
+
+string map3[11] = {
+    "###########",
+    "#S..#.....#",
+    "#.#.#.###.#",
+    "#.#...#G#.#",
+    "#...#.#.#.#",
+    "###.#...#.#",
+    "#...###.#.#",
+    "#.#..X..#.#",
+    "#.#.###.#F#",
+    "#X....X...#",
+    "###########"
 };
 
 int startRow, startCol;
 int flagRow, flagCol;
 int goalRow, goalCol;
+
 int robotRow, robotCol;
 bool hasFlag = false;
 int stepCount = 0;
 
+void loadMaze(string lines[], int lineCount) {
+    rows = lineCount;
+    cols = lines[0].size();
+    for (int r = 0; r < rows; r++) {
+        for (int c = 0; c < cols; c++) {
+            maze[r][c] = lines[r][c];
+        }
+    }
+}
+
 void printMaze() {
-    for (int r = 0; r < ROWS; r++) {
-        for (int c = 0; c < COLS; c++) {
+    for (int r = 0; r < rows; r++) {
+        for (int c = 0; c < cols; c++) {
             if (r == robotRow && c == robotCol) {
                 cout << 'R' << ' ';
             } else if (maze[r][c] == 'F' && hasFlag) {
@@ -39,8 +78,8 @@ void printMaze() {
 }
 
 void findPositions() {
-    for (int r = 0; r < ROWS; r++) {
-        for (int c = 0; c < COLS; c++) {
+    for (int r = 0; r < rows; r++) {
+        for (int c = 0; c < cols; c++) {
             if (maze[r][c] == 'S') { startRow = r; startCol = c; }
             if (maze[r][c] == 'F') { flagRow = r; flagCol = c; }
             if (maze[r][c] == 'G') { goalRow = r; goalCol = c; }
@@ -49,7 +88,7 @@ void findPositions() {
 }
 
 bool isSafe(int r, int c) {
-    if (r < 0 || r >= ROWS || c < 0 || c >= COLS) return false;
+    if (r < 0 || r >= rows || c < 0 || c >= cols) return false;
     if (maze[r][c] == '#' || maze[r][c] == 'X') return false;
     return true;
 }
@@ -81,10 +120,10 @@ void walk(int path[], int length) {
 }
 
 int findPath(int fromRow, int fromCol, int toRow, int toCol, int path[]) {
-    bool visited[ROWS][COLS] = {};
-    int prevRow[ROWS][COLS];
-    int prevCol[ROWS][COLS];
-    int prevDir[ROWS][COLS];
+    bool visited[rows][cols] = {};
+    int prevRow[rows][cols];
+    int prevCol[rows][cols];
+    int prevDir[rows][cols];
 
     queue<int> rowQueue;
     queue<int> colQueue;
@@ -139,17 +178,22 @@ int findPath(int fromRow, int fromCol, int toRow, int toCol, int path[]) {
     return length;
 }
 
-int main() {
-    printMaze();
+void runMission(string lines[], int lineCount) {
+    loadMaze(lines, lineCount);
+    hasFlag = false;
+    stepCount = 0;
     findPositions();
-    int pathToFlag[ROWS * COLS];
-    int pathToBase[ROWS * COLS];
+    robotRow = startRow;
+    robotCol = startCol;
+
+    int pathToFlag[MAX_SIZE * MAX_SIZE];
+    int pathToBase[MAX_SIZE * MAX_SIZE];
     int lengthToFlag = findPath(startRow, startCol, flagRow, flagCol, pathToFlag);
     int lengthToBase = findPath(flagRow, flagCol, goalRow, goalCol, pathToBase);
 
     if (lengthToFlag < 0 || lengthToBase < 0) {
         cout << "MISSION FAILED" << endl;
-        return 0;
+        return;
     }
 
     cout << "PATH TO FLAG   : ";
@@ -167,5 +211,14 @@ int main() {
     cout << "BASE REACHED   : (" << robotRow << "," << robotCol << ")" << endl;
     cout << "MISSION COMPLETE" << endl;
     cout << "TOTAL MOVES    : " << stepCount << endl;
+}
+
+int main() {
+    cout << "===== MAZE 1 =====" << endl;
+    runMission(map1, 7);
+    cout << "===== MAZE 2 =====" << endl;
+    runMission(map2, 9);
+    cout << "===== MAZE 3 =====" << endl;
+    runMission(map3, 11);
     return 0;
 }
