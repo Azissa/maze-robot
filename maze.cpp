@@ -19,11 +19,20 @@ char maze[ROWS][COLS] = {
 int startRow, startCol;
 int flagRow, flagCol;
 int goalRow, goalCol;
+int robotRow, robotCol;
+bool hasFlag = false;
+int stepCount = 0;
 
 void printMaze() {
     for (int r = 0; r < ROWS; r++) {
         for (int c = 0; c < COLS; c++) {
-            cout << maze[r][c] << ' ';
+            if (r == robotRow && c == robotCol) {
+                cout << 'R' << ' ';
+            } else if (maze[r][c] == 'F' && hasFlag) {
+                cout << '.' << ' ';
+            } else {
+                cout << maze[r][c] << ' ';
+            }
         }
         cout << endl;
     }
@@ -55,6 +64,20 @@ void printPath(int path[], int length) {
         if (i < length - 1) cout << ", ";
     }
     cout << endl;
+}
+
+void walk(int path[], int length) {
+    for (int i = 0; i < length; i++) {
+        int d = path[i];
+        robotRow += dRow[d];
+        robotCol += dCol[d];
+        stepCount++;
+
+        cout << "STEP " << stepCount << " - MOVE " << dirName[d]
+                << " - POSITION (" << robotRow << "," << robotCol << ")" << endl;
+        printMaze();
+        cout << endl;
+    }
 }
 
 int findPath(int fromRow, int fromCol, int toRow, int toCol, int path[]) {
@@ -129,15 +152,20 @@ int main() {
         return 0;
     }
 
-    cout << "MAP LOADED     : " << ROWS << " x " << COLS << endl;
-    cout << "START POSITION : (" << startRow << "," << startCol << ")" << endl;
     cout << "PATH TO FLAG   : ";
     printPath(pathToFlag, lengthToFlag);
-    cout << "FLAG CAPTURED  : (" << flagRow << "," << flagCol << ")" << endl;
+    printMaze();
+    cout << endl;
+    walk(pathToFlag, lengthToFlag);
+
+    hasFlag = true;
+    cout << "FLAG CAPTURED  : (" << robotRow << "," << robotCol << ")" << endl;
     cout << "PATH TO BASE   : ";
     printPath(pathToBase, lengthToBase);
-    cout << "BASE REACHED   : (" << goalRow << "," << goalCol << ")" << endl;
+    walk(pathToBase, lengthToBase);
+
+    cout << "BASE REACHED   : (" << robotRow << "," << robotCol << ")" << endl;
     cout << "MISSION COMPLETE" << endl;
-    cout << "TOTAL MOVES    : " << lengthToFlag + lengthToBase << endl;
+    cout << "TOTAL MOVES    : " << stepCount << endl;
     return 0;
 }
